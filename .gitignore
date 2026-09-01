@@ -1,0 +1,6 @@
+node_modules/
+coverage/
+*.tsbuildinfo
+*.js.map
+*.tmp
+.DS_Store
