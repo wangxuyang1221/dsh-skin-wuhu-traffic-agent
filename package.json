@@ -32,7 +32,7 @@
     "build": "tsdown && node scripts/write-skin-build.mjs . wangxuyang1221/dsh-skin-wuhu-traffic-agent .",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.vitest.json --noEmit",
-    "check": "pnpm run typecheck && pnpm run test && pnpm run build"
+    "check": "corepack pnpm run typecheck && corepack pnpm run test && corepack pnpm run build"
   },
   "license": "CC-BY-NC-SA-4.0",
   "peerDependencies": {
