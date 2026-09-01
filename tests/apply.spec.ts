@@ -86,6 +86,24 @@ describe('Wuhu traffic-agent skin', () => {
     expect(entries[0]).toBe(taskBoard)
   })
 
+  it('tracks Settings only while the skin activation owns the page', async () => {
+    const pane = renderShell()
+    const settings = document.createElement('div')
+    settings.dataset.slot = 'sidebar.settings'
+    pane.append(settings)
+    fiber = await mount()
+
+    const dialog = document.createElement('div')
+    dialog.setAttribute('role', 'dialog')
+    settings.append(dialog)
+    await new Promise(resolve => setTimeout(resolve, 0))
+    expect(document.body.hasAttribute('data-wuhu-settings-open')).toBe(true)
+
+    await fiber.dispose()
+    fiber = undefined
+    expect(document.body.hasAttribute('data-wuhu-settings-open')).toBe(false)
+  })
+
   it('reconciles a sidebar replaced by the host and cleans the replacement', async () => {
     renderShell()
     fiber = await mount()

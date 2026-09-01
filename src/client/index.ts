@@ -3,6 +3,7 @@ import type { Context } from '@deepseek-ai/cordis'
 import { installWuhuBrand } from './brand.ts'
 import { POLICE_EMBLEM } from './emblem.ts'
 import { installWuhuHeadline } from './headline.ts'
+import { installWuhuSettingsOverlay } from './settings-overlay.ts'
 import { installWuhuStatus } from './status.ts'
 import css from './wuhu-traffic-agent.module.css'
 
@@ -70,6 +71,7 @@ export function apply(ctx: Context): void {
     }))
     cleanup.push(installWuhuStatus(body))
     cleanup.push(installWuhuHeadline(body))
+    cleanup.push(installWuhuSettingsOverlay(body))
 
     ctx.effect(() => dispose, 'ui-skin-wuhu-traffic-agent: presentation chrome')
   } catch (error) {

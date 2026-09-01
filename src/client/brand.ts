@@ -72,7 +72,7 @@ function createBrandStage(classes: WuhuBrandClasses): HTMLElement {
   registry.setAttribute('aria-hidden', 'true')
   registry.append(
     createText('span', '', 'POLICE INTELLIGENCE CONSOLE'),
-    createText('span', classes.registryCode, '340200 · UI PROTOTYPE'),
+    createText('span', classes.registryCode, '340200 · SECURE LOCAL UI'),
   )
 
   stage.append(identity, verticalName, signal, registry)

@@ -17,6 +17,7 @@ body[data-dsh-wuhu-traffic-agent] {
   --wuhu-surface: rgba(7, 18, 32, 0.84);
   --wuhu-surface-strong: rgba(8, 20, 36, 0.96);
   --wuhu-shadow: 0 18px 50px rgba(0, 5, 14, 0.34), 0 0 0 1px rgba(40, 113, 211, 0.08);
+  --wuhu-settings-overlay-z: 980;
   isolation: isolate;
   color: var(--wuhu-ink);
   background-color: var(--wuhu-navy-900);
@@ -121,9 +122,13 @@ body[data-dsh-wuhu-traffic-agent] [data-chat-flow] *::after {
   border-radius: 0 !important;
 }
 
-body[data-dsh-wuhu-traffic-agent] > #root {
+body[data-dsh-wuhu-traffic-agent] > [id='root'] {
   position: relative;
   z-index: 1;
+}
+
+body[data-dsh-wuhu-traffic-agent][data-wuhu-settings-open] [id='root'] {
+  z-index: var(--wuhu-settings-overlay-z) !important;
 }
 
 body[data-dsh-wuhu-traffic-agent] .ambient {
@@ -184,6 +189,35 @@ body[data-dsh-wuhu-traffic-agent]
   > :not([role='tooltip']):not([data-wuhu-brand-stage]) {
   position: relative;
   z-index: 3;
+}
+
+body[data-dsh-wuhu-traffic-agent][data-wuhu-settings-open]
+  :is([data-pane='sidebar'], [data-slot='sidebar'] > :first-child) {
+  z-index: auto;
+  isolation: auto;
+}
+
+body[data-dsh-wuhu-traffic-agent][data-wuhu-settings-open]
+  [class*='sidebarCol'] {
+  position: relative;
+  z-index: auto;
+  overflow: visible;
+}
+
+body[data-dsh-wuhu-traffic-agent][data-wuhu-settings-open]
+  [data-slot='sidebar'] > :first-child > :has([role='dialog']) {
+  position: relative;
+  z-index: auto;
+  opacity: 1 !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+body[data-dsh-wuhu-traffic-agent][data-wuhu-settings-open] [class*='toggleCluster'],
+body[data-dsh-wuhu-traffic-agent][data-wuhu-settings-open] [data-skin-chrome] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 body[data-dsh-wuhu-traffic-agent] .stage {

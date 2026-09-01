@@ -1,9 +1,17 @@
 {
   "name": "@wuhu-traffic/dsh-client-ui-skin",
-  "description": "Prototype DSH skin for the Wuhu traffic-police intelligent agent visual identity",
-  "version": "0.1.0-prototype.1",
-  "private": true,
+  "description": "DSH skin for the Wuhu traffic-police intelligent agent visual identity",
+  "version": "0.1.0",
+  "author": "wangxuyang1221",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wangxuyang1221/dsh-skin-wuhu-traffic-agent.git"
+  },
   "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
@@ -21,7 +29,7 @@
     }
   },
   "scripts": {
-    "build": "tsdown && node ../scripts/write-skin-build.mjs . Small-tailqwq/dsh-deep-whale",
+    "build": "tsdown && node scripts/write-skin-build.mjs . wangxuyang1221/dsh-skin-wuhu-traffic-agent .",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.vitest.json --noEmit",
     "check": "pnpm run typecheck && pnpm run test && pnpm run build"
@@ -32,6 +40,7 @@
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
+    "@types/node": "^22.20.1",
     "jsdom": "29.1.1",
     "lightningcss": "^1.32.0",
     "tsdown": "^0.22.2",

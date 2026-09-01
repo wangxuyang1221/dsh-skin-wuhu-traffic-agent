@@ -1,23 +1,23 @@
-wuhu-traffic-agent
-==================
+dsh-skin-wuhu-traffic-agent
+===========================
 
-Prototype and derivative notice
+Standalone derivative notice
 
 This package adapts the standalone plugin structure and selected lifecycle
 patterns from ORCA LINK by Small-tailqwq:
 https://github.com/Small-tailqwq/dsh-deep-whale/tree/master/orca-link
 
 ORCA LINK is distributed under CC BY-NC-SA 4.0. This derivative keeps that
-license, identifies its changes, and is limited to non-commercial use. The
-prototype removes all ORCA character scenes, character atlases, pricing
-indicators, slogans, and ORCA branding.
+license, identifies its changes, and is limited to non-commercial use. It does
+not include ORCA character scenes, character atlases, pricing indicators,
+slogans, or ORCA branding.
 
-ORCA LINK's own artwork attribution chain names 上善 as the original creator
-of its whale-girl character and Small-tailqwq as the ORCA LINK derivative
-creator. No whale-girl artwork is copied into this package. This statement is
-retained so the source history is not obscured.
+ORCA LINK's artwork attribution chain names 上善 as the original creator of
+its whale-girl character and Small-tailqwq as the ORCA LINK derivative creator.
+No whale-girl artwork is copied into this package. This statement is retained
+so the source history is not obscured.
 
-The file assets/police-emblem-hd.png was supplied by the prototype requester.
+The file assets/police-emblem-hd.png was supplied by the requester.
 assets/police-emblem-runtime.png is a normalized 512-pixel rendition generated
 from that source for the client bundle. The CC license in this package does not
 grant trademark, official-symbol, endorsement, or other rights in the emblem.
@@ -25,10 +25,12 @@ Confirm authorization before distribution or operational deployment.
 
 Changes in this derivative:
 
-- new package, skin, patch, body-attribute, and loader identifiers;
-- a navy traffic-police visual system and Wuhu-specific prototype copy;
+- standalone package, skin, patch, body-attribute, and loader identifiers;
+- a navy traffic-police visual system and Wuhu-specific interface copy;
 - a sidebar brand stage driven by the existing DSH sidebar layout;
 - Chinese status projection from the active DSH conversation;
 - a fixed hero headline with ownership-safe restoration;
+- a minimal Settings stacking compatibility layer that preserves the official
+  dialog, focus handling, mask, and business structure;
 - removal of ORCA artwork, pricing, icon rewriting, composer behavior changes,
-  settings overlays, and plugin-specific business UI styling.
+  character interactions, and plugin-specific business UI styling.

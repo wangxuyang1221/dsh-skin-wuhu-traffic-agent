@@ -1,50 +1,62 @@
-# 芜湖交管警用智能体皮肤原型
+# 芜湖交管警用智能体皮肤
 
-这是一个可加载到 DSH Desktop 的真实客户端皮肤，不是静态网页稿。
+这是一个可加载到 DSH Desktop 的 Web Client 皮肤。它只修改现有界面的品牌、色彩、排版和装饰，并把当前会话状态显示为中文状态标签。
 
-它回答一个具体问题：公安深蓝品牌视觉放进真实 DSH Desktop 后，是否清晰、稳重、可读，同时不干扰官方组件和其他插件？
+![暗色界面预览](preview/dark.png)
 
-## 落点
+## 功能边界
 
-- 目标目录：`wuhu-traffic-agent/`
-- 目标应用：DSH Desktop 2.0.4
-- 插件形态：普通 DSH Web Client 皮肤
-- 身份：`@wuhu-traffic/dsh-client-ui-skin`
-- Loader 行：`ui-skin-wuhu-traffic-agent`
-- Body 作用域：`data-dsh-wuhu-traffic-agent`
+皮肤负责：
 
-## 皮肤负责什么
-
-皮肤只负责以下内容：
-
-- 芜湖市公安交管品牌舞台和徽标占位素材
+- 芜湖市公安交管品牌区、徽标和页面标题
 - 深蓝配色、直线边框、排版和装饰刻度
-- 空态欢迎语
-- 根据当前 DSH 会话状态显示“系统待命”“任务执行”等状态
-- 卸载时完整撤销 DOM、属性、标题、favicon、观察器和样式变量
+- 空态欢迎语和当前会话状态的视觉投影
+- Settings 打开时的层级兼容
+- 卸载时恢复 DOM、属性、标题、favicon、观察器和样式变量
 
-## 皮肤不负责什么
+任务看板、SSH、技能中心、插件市场、工作区树、会话列表、模型选择器和消息发送仍由 DSH 或其他插件提供。本包不创建这些功能，也不绑定它们的业务逻辑。
 
-任务看板、SSH、技能中心、插件市场、工作区树、会话列表、模型选择器和消息发送都由 DSH 或其他插件实现。本皮肤只给这些现有组件换外观，不创建替代功能，也不绑定它们的业务逻辑。
+## 环境要求
 
-## 本地验证
+- Node.js `^22.19.0` 或 `>=24.0.0`
+- Corepack
+- pnpm `11.25.0`，由 `packageManager` 字段锁定
+
+## 构建与检查
 
 ```sh
-cd /absolute/path/to/wuhu-traffic-agent
-pnpm install
-pnpm check
-
-dsh plugin --profile desktop add /absolute/path/to/wuhu-traffic-agent
+corepack pnpm install --frozen-lockfile
+corepack pnpm run check
 ```
 
-安装后需要在 profile 和 DSH home 的补丁层中启用 `ui-skin-wuhu-traffic-agent`，并禁用其他皮肤。皮肤管理器也可以完成这一步。
+`check` 依次运行 TypeScript 检查、Vitest 和构建。构建会生成并提交以下文件：
 
-`skin.json` 暂时沿用 ORCA LINK 构建链要求的 `0.1.1rc2` 兼容字段。2026-09-01 已在 DSH Desktop 2.0.4 所带的 `0.1.2-alpha.1` 运行时完成真实启动检查。Profile 组合结果为 ORCA LINK 禁用、本皮肤启用，Electron Renderer 正常显示后已关闭。验收截图见 `preview/dark.png`。
+- `lib/index.js`
+- `lib/client.js`
+- `skin.build.json`
 
-本地门禁结果：TypeScript 检查通过，4 个 Vitest 生命周期测试通过，`lib/index.js` 与 `lib/client.js` 构建成功。
+`skin.build.json` 由 `scripts/write-skin-build.mjs` 生成，仓库路径固定为 `.`。不要手工修改 fingerprint。
 
-## 素材和许可
+## 本地安装
 
-整体沿用 ORCA LINK 的 CC BY-NC-SA 4.0 许可，仅限非商业使用。完整来源说明见 `NOTICE`。
+DSH CLI 必须使用皮肤仓库的绝对路径：
 
-`assets/police-emblem-hd.png` 是用户提供的 `1254 × 1254` 原图。运行时使用由它生成的 `512 × 512` 标准化版本，主体约占画布 90%，可避免替换后视觉尺寸突增。正式分发前仍需确认该徽标素材的使用授权。
+```sh
+dsh plugin --profile desktop add /absolute/path/to/dsh-skin-wuhu-traffic-agent
+```
+
+同名包从旧路径迁移时直接再次执行 `plugin add`，不要先 remove。安装后确认 `ui-skin-wuhu-traffic-agent` 启用，并显式禁用其他皮肤。配置支持热加载时刷新页面即可。
+
+## 兼容性
+
+`skin.json.dshCompatibility` 保持为 `0.1.1rc2`，这是当前构建元数据接受的稳定 rc 格式。2026-09-01 已在 DSH Desktop 2.0.4 所带的 `0.1.2-alpha.1` 运行时完成真实启动验证。
+
+皮肤使用 DSH 的既有 Settings dialog，不替换其 mask、焦点管理或业务结构。皮肤自有层级保持低于 DSH 的 Modal 1000 和 portal menu 1100。
+
+## 素材与许可
+
+本项目沿用 ORCA LINK 的 CC BY-NC-SA 4.0 许可，只允许非商业使用。来源和修改说明见 [NOTICE](NOTICE)。
+
+`assets/police-emblem-hd.png` 是用户提供的 `1254 × 1254` 原图。客户端使用由它生成的 `512 × 512` 版本 `assets/police-emblem-runtime.png`，并以内嵌数据 URI 加载，不依赖远程资源。
+
+该许可不授予公安徽标相关的官方标志、商标或背书权利。公开分发或投入实际业务前必须确认素材使用授权。

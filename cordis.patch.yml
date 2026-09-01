@@ -1,5 +1,5 @@
 # Wuhu traffic-agent skin bundle patch. This inserts only the browser skin row.
-# Install with an absolute local path during prototype development.
+# Install local checkouts with an absolute path.
 - insert:
     - id: ui-skin-wuhu-traffic-agent
       name: '@wuhu-traffic/dsh-client-ui-skin'

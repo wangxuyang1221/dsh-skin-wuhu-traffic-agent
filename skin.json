@@ -2,15 +2,15 @@
   "id": "wuhu-traffic-agent",
   "name": "芜湖交管警用智能体",
   "nameEn": "Wuhu Traffic Police Agent",
-  "author": "Local prototype",
+  "author": "wangxuyang1221",
   "tagline": "深蓝警务界面 · 实时会话状态 · 克制的直线结构",
-  "description": "面向 DSH Desktop 的公安交管品牌皮肤原型。它只修改品牌、色彩、排版和装饰，不实现任务看板、SSH、技能中心、插件市场或其他业务插件。",
+  "description": "面向 DSH Desktop 的公安交管品牌皮肤。它只修改品牌、色彩、排版和装饰，不实现任务看板、SSH、技能中心、插件市场或其他业务插件。",
   "tags": [
     "police",
     "traffic",
+    "wuhu",
     "navy",
-    "rectilinear",
-    "prototype"
+    "rectilinear"
   ],
   "accent": "#2b86ff",
   "bodyAttr": "data-dsh-wuhu-traffic-agent",
