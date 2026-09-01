@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "fingerprint": "b5bbe9410ce07bf8593e131a30fb242c4ab5480fe736784b34e62744d5daa133",
-  "sourceCommit": "4803ea62dfd0ae3f4a0b97d33fdc0c2fff4805df",
-  "repository": "Small-tailqwq/dsh-deep-whale",
-  "path": "wuhu-traffic-agent"
+  "fingerprint": "1b790733198d505cfa13c0fbbcab9cec19f4340e7ee1ee30a3851d5cae2a23b1",
+  "sourceCommit": "bd48c9a18c66d56cf2cb1911bc9bff7c18001ca7",
+  "repository": "wangxuyang1221/dsh-skin-wuhu-traffic-agent",
+  "path": "."
 }
