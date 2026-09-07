@@ -415,6 +415,17 @@ body[data-dsh-wuhu-traffic-agent] .registryCode {
   color: rgba(73, 154, 248, 0.52);
 }
 
+body[data-dsh-wuhu-traffic-agent] [data-wuhu-brand-mark-slot] > :not([data-wuhu-brand-mark]) {
+  display: none !important;
+}
+
+body[data-dsh-wuhu-traffic-agent] img[data-wuhu-brand-mark] {
+  display: block;
+  flex: none;
+  object-fit: contain;
+  pointer-events: none;
+}
+
 body[data-dsh-wuhu-traffic-agent] [data-wuhu-brand-row] {
   z-index: 5 !important;
   min-height: 52px;

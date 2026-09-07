@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context, type Fiber } from '@deepseek-ai/cordis'
 import { apply } from '../src/client/index.ts'
 import { WUHU_HEADLINE } from '../src/client/headline.ts'
+import { POLICE_EMBLEM } from '../src/client/emblem.ts'
 
 let fiber: Fiber | undefined
 
@@ -29,6 +30,7 @@ function renderShell(): HTMLElement {
     </div>
     <div data-phase="hero">
       <div data-conversation-scroll>
+        <span data-slot="conversation.hero.brand.mark" style="display: contents"><svg width="34" height="34"></svg></span>
         <h2 class="fixture_headlineText">原始欢迎语</h2>
         <div data-composer-card><textarea data-phase="plain"></textarea></div>
       </div>
@@ -84,6 +86,96 @@ describe('Wuhu traffic-agent skin', () => {
     expect(document.querySelector('.fixture_headlineText')?.textContent).toBe('原始欢迎语')
     expect(document.title).toBe('original')
     expect(entries[0]).toBe(taskBoard)
+  })
+
+  it('replaces both whale marks with the existing police emblem without replacing host nodes or handlers', async () => {
+    renderShell()
+    const slots = Array.from(document.querySelectorAll<HTMLElement>(
+      '[data-slot="sidebar.brand.mark"], [data-slot="conversation.hero.brand.mark"]',
+    ))
+    const originalMarkup = slots.map(slot => slot.outerHTML)
+    const originalIcons = slots.map(slot => slot.querySelector('svg'))
+    const button = slots[0]!.closest('button')!
+    const onClick = vi.fn()
+    button.addEventListener('click', onClick)
+
+    fiber = await mount()
+
+    for (const [index, slot] of slots.entries()) {
+      const emblem = slot.querySelector<HTMLImageElement>('img[data-wuhu-brand-mark]')
+      expect(emblem, slot.dataset.slot).not.toBeNull()
+      expect(emblem!.src).toBe(POLICE_EMBLEM)
+      expect(emblem!.width).toBe(index === 0 ? 24 : 34)
+      expect(emblem!.height).toBe(emblem!.width)
+      expect(emblem!.alt).toBe('')
+      expect(emblem!.getAttribute('aria-hidden')).toBe('true')
+      expect(slot.hasAttribute('data-wuhu-brand-mark-slot')).toBe(true)
+      expect(slot.querySelector('svg')).toBe(originalIcons[index])
+    }
+    slots[0]!.querySelector<HTMLImageElement>('img')!.click()
+    expect(onClick).toHaveBeenCalledOnce()
+
+    await fiber.dispose()
+    fiber = undefined
+    expect(slots.map(slot => slot.outerHTML)).toEqual(originalMarkup)
+    button.click()
+    expect(onClick).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps both emblems after sidebar collapse, hero remount, and host icon rerenders', async () => {
+    const pane = renderShell()
+    fiber = await mount()
+    const oldSidebarSlot = pane.querySelector('[data-slot="sidebar.brand.mark"]')!
+    pane.firstElementChild!.innerHTML = `
+      <button type="button" aria-label="展开侧边栏">
+        <span class="fixture_railMark"><span data-slot="sidebar.brand.mark" style="display: contents"><svg></svg></span></span>
+        <svg class="fixture_panelIcon"></svg>
+      </button>
+    `
+    const oldHeroSlot = document.querySelector('[data-slot="conversation.hero.brand.mark"]')!
+    oldHeroSlot.remove()
+    await new Promise(resolve => setTimeout(resolve, 0))
+
+    const sidebarSlot = pane.querySelector('[data-slot="sidebar.brand.mark"]')!
+    expect(sidebarSlot.querySelector('img[data-wuhu-brand-mark]')).not.toBeNull()
+    expect(oldSidebarSlot.querySelector('img')).toBeNull()
+    expect(oldSidebarSlot.hasAttribute('data-wuhu-brand-mark-slot')).toBe(false)
+    expect(oldHeroSlot.querySelector('img')).toBeNull()
+    expect(pane.querySelector('.fixture_panelIcon')).not.toBeNull()
+
+    const heroSlot = document.createElement('span')
+    heroSlot.dataset.slot = 'conversation.hero.brand.mark'
+    heroSlot.innerHTML = '<svg></svg>'
+    document.querySelector('[data-conversation-scroll]')!.prepend(heroSlot)
+    sidebarSlot.innerHTML = '<svg data-host-update></svg>'
+    await new Promise(resolve => setTimeout(resolve, 0))
+    expect(heroSlot.querySelectorAll('img[data-wuhu-brand-mark]')).toHaveLength(1)
+    expect(sidebarSlot.querySelectorAll('img[data-wuhu-brand-mark]')).toHaveLength(1)
+    expect(sidebarSlot.querySelector('[data-host-update]')).not.toBeNull()
+
+    await fiber.dispose()
+    fiber = undefined
+    expect(document.querySelector('[data-wuhu-brand-mark]')).toBeNull()
+    expect(document.querySelector('[data-wuhu-brand-mark-slot]')).toBeNull()
+    expect(sidebarSlot.querySelector('[data-host-update]')).not.toBeNull()
+    heroSlot.append(document.createElement('svg'))
+    await new Promise(resolve => setTimeout(resolve, 0))
+    expect(document.querySelector('[data-wuhu-brand-mark]')).toBeNull()
+  })
+
+  it('restores prior mark attributes without overwriting a later owner', async () => {
+    renderShell()
+    const sidebarSlot = document.querySelector('[data-slot="sidebar.brand.mark"]')!
+    const heroSlot = document.querySelector('[data-slot="conversation.hero.brand.mark"]')!
+    sidebarSlot.setAttribute('data-wuhu-brand-mark-slot', 'previous')
+    fiber = await mount()
+    heroSlot.setAttribute('data-wuhu-brand-mark-slot', 'later-owner')
+
+    await fiber.dispose()
+    fiber = undefined
+    expect(sidebarSlot.getAttribute('data-wuhu-brand-mark-slot')).toBe('previous')
+    expect(heroSlot.getAttribute('data-wuhu-brand-mark-slot')).toBe('later-owner')
+    expect(document.querySelector('[data-wuhu-brand-mark]')).toBeNull()
   })
 
   it('tracks Settings only while the skin activation owns the page', async () => {

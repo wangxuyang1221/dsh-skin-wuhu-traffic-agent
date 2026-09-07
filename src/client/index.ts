@@ -1,6 +1,7 @@
 /** Presentation-only Wuhu traffic-police skin. */
 import type { Context } from '@deepseek-ai/cordis'
 import { installWuhuBrand } from './brand.ts'
+import { installWuhuBrandMarks } from './brand-marks.ts'
 import { POLICE_EMBLEM } from './emblem.ts'
 import { installWuhuHeadline } from './headline.ts'
 import { installWuhuSettingsOverlay } from './settings-overlay.ts'
@@ -71,6 +72,7 @@ export function apply(ctx: Context): void {
     }))
     cleanup.push(installWuhuStatus(body))
     cleanup.push(installWuhuHeadline(body))
+    cleanup.push(installWuhuBrandMarks(body))
     cleanup.push(installWuhuSettingsOverlay(body))
 
     ctx.effect(() => dispose, 'ui-skin-wuhu-traffic-agent: presentation chrome')
