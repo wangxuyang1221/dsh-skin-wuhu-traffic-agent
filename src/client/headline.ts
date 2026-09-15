@@ -2,6 +2,7 @@ import { hasRelevantMutation } from './mutation-filter.ts'
 
 export const WUHU_HEADLINE = '欢迎使用芜湖市公安交管警用智能体'
 const HEADLINE_SELECTOR = "[data-phase='hero'] [class*='headlineText']"
+const TITLE_GROUP_HEADLINE_SELECTOR = "[data-phase='hero'] [class*='titleGroup'] > span:first-child"
 const OWNERSHIP_ATTRIBUTE = 'data-wuhu-headline'
 
 interface HeadlineOwnership {
@@ -21,8 +22,24 @@ export function installWuhuHeadline(body: HTMLElement): () => void {
     ownership = null
   }
 
+  const findHeadline = (): HTMLElement | null => {
+    const legacy = body.querySelector<HTMLElement>(HEADLINE_SELECTOR)
+    if (legacy !== null) return legacy
+
+    // ui-conversation 0.1.5-rc.1 groups the unclassed title with its
+    // preview badge. Never replace the group or an unknown layout.
+    for (const candidate of body.querySelectorAll<HTMLElement>(TITLE_GROUP_HEADLINE_SELECTOR)) {
+      const badge = candidate.nextElementSibling
+      if (candidate.children.length === 0
+        && !candidate.matches("[class*='previewBadge']")
+        && badge?.matches("span[class*='previewBadge']")
+        && badge.nextElementSibling === null) return candidate
+    }
+    return null
+  }
+
   const synchronize = (): void => {
-    const found = body.querySelector<HTMLElement>(HEADLINE_SELECTOR)
+    const found = findHeadline()
     if (found !== ownership?.element) {
       release()
       if (found === null) return

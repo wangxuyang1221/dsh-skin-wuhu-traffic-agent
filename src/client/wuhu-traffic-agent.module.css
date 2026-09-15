@@ -63,6 +63,9 @@ body[data-dsh-wuhu-traffic-agent] {
   --dsw-alias-interactive-bg-active: rgba(43, 134, 255, 0.2) !important;
   --dsw-alias-interactive-bg-hover: rgba(43, 134, 255, 0.1) !important;
   --dsw-alias-interactive-bg-hover-solid: #143456 !important;
+  --dsw-alias-markdown-inline-code: #143456 !important;
+  --dsw-alias-markdown-code-block: #071322 !important;
+  --dsw-alias-markdown-code-block-banner: #0c2139 !important;
   --dsw-alias-label-primary: #edf5ff !important;
   --dsw-alias-label-secondary: #bac9dc !important;
   --dsw-alias-label-tertiary: #8ca0b8 !important;
@@ -544,7 +547,7 @@ body[data-dsh-wuhu-traffic-agent] [data-slot='sidebar'] [role='treeitem']:hover 
   background-color: rgba(43, 134, 255, 0.08);
 }
 
-body[data-dsh-wuhu-traffic-agent] [data-phase='hero'] [class*='headlineText'] {
+body[data-dsh-wuhu-traffic-agent] [data-phase='hero'] [data-wuhu-headline] {
   display: inline-block;
   min-width: 15em;
   color: #eef6ff;
@@ -557,7 +560,7 @@ body[data-dsh-wuhu-traffic-agent] [data-phase='hero'] [class*='headlineText'] {
   text-shadow: 0 6px 24px rgba(0, 8, 20, 0.36);
 }
 
-body[data-dsh-wuhu-traffic-agent] [data-phase='hero'] [class*='headlineText']::after {
+body[data-dsh-wuhu-traffic-agent] [data-phase='hero'] [data-wuhu-headline]::after {
   display: inline-block;
   width: 8px;
   height: 8px;
@@ -669,7 +672,7 @@ body[data-dsh-wuhu-traffic-agent] *::-webkit-scrollbar-thumb {
     display: none;
   }
 
-  body[data-dsh-wuhu-traffic-agent] [data-phase='hero'] [class*='headlineText'] {
+  body[data-dsh-wuhu-traffic-agent] [data-phase='hero'] [data-wuhu-headline] {
     min-width: 0;
     font-size: clamp(23px, 3.2vw, 31px);
     white-space: normal;
@@ -693,7 +696,7 @@ body[data-dsh-wuhu-traffic-agent] *::-webkit-scrollbar-thumb {
 @media (prefers-reduced-motion: reduce) {
   body[data-dsh-wuhu-traffic-agent] .stage,
   body[data-dsh-wuhu-traffic-agent] .signalDot,
-  body[data-dsh-wuhu-traffic-agent] [data-phase='hero'] [class*='headlineText']::after {
+  body[data-dsh-wuhu-traffic-agent] [data-phase='hero'] [data-wuhu-headline]::after {
     animation: none !important;
     transition: none !important;
   }
