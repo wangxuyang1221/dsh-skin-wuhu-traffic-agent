@@ -2,7 +2,6 @@ import { POLICE_EMBLEM } from './emblem.ts'
 import { hasRelevantMutation } from './mutation-filter.ts'
 
 const SIDEBAR_PANE_SELECTOR = "[data-slot='sidebar'] > :first-child"
-const SIDEBAR_LOGO_ROW_SELECTOR = `${SIDEBAR_PANE_SELECTOR} > :first-child`
 const APP_FRAME_SELECTOR = "[id='root'] > div[data-slot='root'] > div"
 const WIDTH_PROPERTY = '--wuhu-sidebar-width'
 const WIDE_ATTRIBUTE = 'data-wuhu-sidebar-wide'
@@ -79,38 +78,55 @@ function createBrandStage(classes: WuhuBrandClasses): HTMLElement {
   return stage
 }
 
-function findBrandButton(row: HTMLElement): HTMLButtonElement | null {
-  const buttons = Array.from(row.querySelectorAll<HTMLButtonElement>(':scope > button'))
-  return buttons.find((button, index) => {
-    const label = button.getAttribute('aria-label') ?? ''
-    return index === 0 && (buttons.length > 1 || !/sidebar|侧边栏/i.test(label))
-  }) ?? null
+function findBrandRow(pane: HTMLElement): HTMLElement | null {
+  let node = pane.querySelector<HTMLElement>("[data-slot='sidebar.brand.name'], [data-slot='sidebar.brand.mark']")
+  while (node !== null && node.parentElement !== pane) node = node.parentElement
+  return node
+    ?? pane.querySelector<HTMLElement>(":scope > [class*='logoRow']")
+    ?? pane.querySelector<HTMLElement>(":scope > :first-child:not([data-wuhu-brand-stage])")
+}
+
+function findBrandContent(row: HTMLElement): HTMLElement | null {
+  const name = row.querySelector<HTMLElement>("[data-slot='sidebar.brand.name']")
+  if (name === null) return null // A collapsed rail's mark belongs to its toggle.
+  const button = name.closest('button')
+  if (button !== null && row.contains(button)) return button
+  const mark = row.querySelector("[data-slot='sidebar.brand.mark']")
+  let content = name
+  while (mark !== null && !content.contains(mark) && content.parentElement !== row) {
+    if (content.parentElement === null) break
+    content = content.parentElement
+  }
+  return content
 }
 
 /** Mount responsive brand chrome into the real DSH sidebar. */
 export function installWuhuBrand(body: HTMLElement, classes: WuhuBrandClasses): () => void {
   const originalWidth = body.style.getPropertyValue(WIDTH_PROPERTY)
-  const originalWide = body.hasAttribute(WIDE_ATTRIBUTE)
+  const originalWidthPriority = body.style.getPropertyPriority(WIDTH_PROPERTY)
+  const originalWide = body.getAttribute(WIDE_ATTRIBUTE)
   const originalRows = new Map<HTMLElement, string | null>()
-  const originalButtons = new Map<HTMLElement, string | null>()
+  const originalContents = new Map<HTMLElement, string | null>()
+  const originalStaticRows = new Map<HTMLElement, string | null>()
   let ownedWidth: string | null = null
-  let ownedWide: boolean | null = null
+  let ownedWidthPriority = ''
+  let ownedWide: string | null | undefined
   let currentStage: HTMLElement | null = null
   let observedPane: HTMLElement | null = null
 
   const synchronizeWidth = (pane: HTMLElement): void => {
     const measured = pane.getBoundingClientRect().width
-    if (measured <= 0) return
     const frame = body.querySelector<HTMLElement>(APP_FRAME_SELECTOR)
     const firstTrack = frame?.style.gridTemplateColumns.trim().match(/^(-?(?:\d+|\d*\.\d+))px(?:\s|$)/)?.[1]
     const endpoint = firstTrack === undefined ? measured : Number.parseFloat(firstTrack)
-    const width = Number.isFinite(endpoint) && endpoint > 0 ? endpoint : measured
+    const width = Number.isFinite(endpoint) && endpoint >= 0 ? endpoint : measured
+    if (!Number.isFinite(width) || width < 0) return
     const serialized = `${width}px`
     if (body.style.getPropertyValue(WIDTH_PROPERTY) !== serialized) body.style.setProperty(WIDTH_PROPERTY, serialized)
     ownedWidth = serialized
-    const wide = width > 96
-    body.toggleAttribute(WIDE_ATTRIBUTE, wide)
-    ownedWide = wide
+    ownedWidthPriority = body.style.getPropertyPriority(WIDTH_PROPERTY)
+    body.toggleAttribute(WIDE_ATTRIBUTE, width > 96)
+    ownedWide = body.getAttribute(WIDE_ATTRIBUTE)
   }
 
   const resizeObserver = typeof ResizeObserver === 'undefined'
@@ -119,15 +135,27 @@ export function installWuhuBrand(body: HTMLElement, classes: WuhuBrandClasses): 
         if (observedPane !== null) synchronizeWidth(observedPane)
       })
 
-  const mark = (element: HTMLElement, attribute: string, originals: Map<HTMLElement, string | null>): void => {
-    if (!originals.has(element)) originals.set(element, element.getAttribute(attribute))
-    if (element.getAttribute(attribute) !== '') element.setAttribute(attribute, '')
+  const mark = (element: HTMLElement | null, attribute: string, originals: Map<HTMLElement, string | null>): void => {
+    // Keep only the current host node; detached React rows must not accumulate.
+    for (const [previous, original] of originals) {
+      if (previous === element) continue
+      if (previous.getAttribute(attribute) === '') {
+        if (original === null) previous.removeAttribute(attribute)
+        else previous.setAttribute(attribute, original)
+      }
+      originals.delete(previous)
+    }
+    if (element !== null && !originals.has(element)) {
+      originals.set(element, element.getAttribute(attribute))
+      element.setAttribute(attribute, '')
+    }
   }
 
   const synchronize = (): void => {
     const pane = body.querySelector<HTMLElement>(SIDEBAR_PANE_SELECTOR)
-    const row = body.querySelector<HTMLElement>(SIDEBAR_LOGO_ROW_SELECTOR)
-    if (pane === null || row === null) return
+    if (pane === null) return
+    const row = findBrandRow(pane)
+    if (row === null) return
 
     if (observedPane !== pane) {
       resizeObserver?.disconnect()
@@ -136,49 +164,47 @@ export function installWuhuBrand(body: HTMLElement, classes: WuhuBrandClasses): 
     }
     synchronizeWidth(pane)
 
-    if (currentStage?.parentElement !== pane) {
-      currentStage?.remove()
-      currentStage = pane.querySelector<HTMLElement>(':scope > [data-wuhu-brand-stage]')
-      if (currentStage === null) {
-        currentStage = createBrandStage(classes)
-        pane.append(currentStage)
-      }
-    }
-
+    currentStage ??= createBrandStage(classes)
+    if (row.nextElementSibling !== currentStage) row.after(currentStage)
     mark(row, 'data-wuhu-brand-row', originalRows)
-    const brandButton = findBrandButton(row)
-    if (brandButton !== null) mark(brandButton, 'data-wuhu-brand-button', originalButtons)
+    const brandContent = findBrandContent(row)
+    mark(brandContent, 'data-wuhu-brand-content', originalContents)
+    mark(brandContent !== null && row.querySelector('button') === null ? row : null,
+      'data-wuhu-brand-static-row', originalStaticRows)
   }
 
   const observer = new MutationObserver((records) => {
     if (hasRelevantMutation(records)) synchronize()
   })
-  observer.observe(body, { childList: true, subtree: true })
-  synchronize()
-
-  return () => {
+  let disposed = false
+  const dispose = (): void => {
+    if (disposed) return
+    disposed = true
     observer.disconnect()
     resizeObserver?.disconnect()
-    body.querySelectorAll('[data-wuhu-brand-stage]').forEach(stage => stage.remove())
     currentStage?.remove()
 
-    for (const [row, original] of originalRows) {
-      if (row.getAttribute('data-wuhu-brand-row') !== '') continue
-      if (original === null) row.removeAttribute('data-wuhu-brand-row')
-      else row.setAttribute('data-wuhu-brand-row', original)
-    }
-    for (const [button, original] of originalButtons) {
-      if (button.getAttribute('data-wuhu-brand-button') !== '') continue
-      if (original === null) button.removeAttribute('data-wuhu-brand-button')
-      else button.setAttribute('data-wuhu-brand-button', original)
-    }
+    mark(null, 'data-wuhu-brand-row', originalRows)
+    mark(null, 'data-wuhu-brand-content', originalContents)
+    mark(null, 'data-wuhu-brand-static-row', originalStaticRows)
 
-    if (ownedWidth !== null && body.style.getPropertyValue(WIDTH_PROPERTY) === ownedWidth) {
+    if (ownedWidth !== null && body.style.getPropertyValue(WIDTH_PROPERTY) === ownedWidth
+      && body.style.getPropertyPriority(WIDTH_PROPERTY) === ownedWidthPriority) {
       if (originalWidth === '') body.style.removeProperty(WIDTH_PROPERTY)
-      else body.style.setProperty(WIDTH_PROPERTY, originalWidth)
+      else body.style.setProperty(WIDTH_PROPERTY, originalWidth, originalWidthPriority)
     }
-    if (ownedWide !== null && body.hasAttribute(WIDE_ATTRIBUTE) === ownedWide) {
-      body.toggleAttribute(WIDE_ATTRIBUTE, originalWide)
+    if (ownedWide !== undefined && body.getAttribute(WIDE_ATTRIBUTE) === ownedWide) {
+      if (originalWide === null) body.removeAttribute(WIDE_ATTRIBUTE)
+      else body.setAttribute(WIDE_ATTRIBUTE, originalWide)
     }
+  }
+
+  try {
+    observer.observe(body, { childList: true, subtree: true })
+    synchronize()
+    return dispose
+  } catch (error) {
+    dispose()
+    throw error
   }
 }

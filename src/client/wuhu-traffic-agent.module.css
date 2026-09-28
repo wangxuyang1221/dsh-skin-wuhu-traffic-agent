@@ -20,10 +20,8 @@ body[data-dsh-wuhu-traffic-agent] {
   --wuhu-settings-overlay-z: 980;
   isolation: isolate;
   color: var(--wuhu-ink);
-  background-color: var(--wuhu-navy-900);
-  background-image:
-    radial-gradient(circle at 76% 48%, rgba(21, 96, 181, 0.2), transparent 42%),
-    linear-gradient(135deg, #06111f 0%, #091d33 54%, #082039 100%);
+  /* Beat Desktop's macOS transparency rule and compatibility-mode override. */
+  background: #181d21 !important;
 
   --dsw-static-blue-50: #e8f3ff !important;
   --dsw-static-blue-100: #cce4ff !important;
@@ -41,7 +39,8 @@ body[data-dsh-wuhu-traffic-agent] {
   --dsw-static-deepseek-600: #1869c7 !important;
   --dsw-static-deepseek-800: #124681 !important;
   --dsw-static-deepseek-900: #0d315d !important;
-  --dsw-alias-bg-base: rgba(5, 13, 24, 0.32) !important;
+  /* Opaque: the host may clear body backgrounds or use native vibrancy. */
+  --dsw-alias-bg-base: #181d21 !important;
   --dsw-alias-bg-layer-1: rgba(7, 18, 32, 0.86) !important;
   --dsw-alias-bg-layer-2: rgba(10, 27, 47, 0.9) !important;
   --dsw-alias-bg-layer-3: rgba(14, 36, 61, 0.94) !important;
@@ -77,7 +76,7 @@ body[data-dsh-wuhu-traffic-agent] {
   --dsw-specific-input-major: rgba(7, 17, 30, 0.94) !important;
   --dsw-specific-menu: rgba(6, 17, 30, 0.99) !important;
   --dsw-specific-selector: rgba(10, 29, 50, 0.97) !important;
-  --dsw-specific-sidebar-fill: rgba(5, 13, 24, 0.94) !important;
+  --dsw-specific-sidebar-fill: #050d18 !important;
   --dsw-specific-sidebar-nav-item-active: rgba(38, 103, 181, 0.28) !important;
   --dsw-specific-sidebar-nav-item-active-accent: #2b86ff !important;
   --dsw-specific-sidebar-nav-item-hover: rgba(34, 83, 139, 0.22) !important;
@@ -87,10 +86,6 @@ body[data-dsh-wuhu-traffic-agent] {
 body[data-dsh-wuhu-traffic-agent][data-ds-dark-theme] {
   --wuhu-surface: rgba(5, 14, 26, 0.88);
   --wuhu-surface-strong: rgba(5, 15, 28, 0.97);
-  background-color: #04101e;
-  background-image:
-    radial-gradient(circle at 75% 46%, rgba(14, 82, 157, 0.23), transparent 44%),
-    linear-gradient(135deg, #040d18 0%, #07192c 52%, #08223c 100%);
 }
 
 body[data-dsh-wuhu-traffic-agent],
@@ -184,7 +179,7 @@ body[data-dsh-wuhu-traffic-agent] :is([data-pane='sidebar'], [data-slot='sidebar
   isolation: isolate;
   overflow: hidden;
   border-right: 1px solid rgba(75, 137, 211, 0.2);
-  background: rgba(4, 12, 22, 0.94);
+  background: #050d18;
 }
 
 body[data-dsh-wuhu-traffic-agent]
@@ -224,13 +219,14 @@ body[data-dsh-wuhu-traffic-agent][data-wuhu-settings-open] [data-skin-chrome] {
 }
 
 body[data-dsh-wuhu-traffic-agent] .stage {
-  position: absolute;
+  position: relative;
   z-index: 2;
-  top: 0;
-  left: 0;
+  flex: 0 0 auto;
+  margin-inline: calc(-1 * var(--dsh-sidebar-inline-padding, 12px));
   box-sizing: border-box;
   width: var(--wuhu-sidebar-width, 300px);
-  height: var(--wuhu-stage, 276px);
+  /* The native control row above retains its own 52px of flow space. */
+  height: calc(var(--wuhu-stage, 276px) - 52px);
   container-name: wuhu-brand-stage;
   container-type: inline-size;
   overflow: hidden;
@@ -287,7 +283,7 @@ body[data-dsh-wuhu-traffic-agent]:not([data-wuhu-sidebar-wide]) .stage {
 
 body[data-dsh-wuhu-traffic-agent] .identity {
   position: absolute;
-  top: 50px;
+  top: 8px;
   right: 14px;
   left: 28px;
   display: flex;
@@ -332,7 +328,7 @@ body[data-dsh-wuhu-traffic-agent] .emblem {
 
 body[data-dsh-wuhu-traffic-agent] .verticalName {
   position: absolute;
-  top: 156px;
+  top: 104px;
   left: 8px;
   color: rgba(177, 201, 230, 0.78);
   font: 600 9px/1.35 "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -342,7 +338,7 @@ body[data-dsh-wuhu-traffic-agent] .verticalName {
 
 body[data-dsh-wuhu-traffic-agent] .signal {
   position: absolute;
-  top: 183px;
+  top: 131px;
   left: 40px;
   display: inline-flex;
   height: 28px;
@@ -429,96 +425,30 @@ body[data-dsh-wuhu-traffic-agent] img[data-wuhu-brand-mark] {
   pointer-events: none;
 }
 
-body[data-dsh-wuhu-traffic-agent] [data-wuhu-brand-row] {
+body[data-dsh-wuhu-traffic-agent][data-wuhu-sidebar-wide] [data-wuhu-brand-row] {
   z-index: 5 !important;
+  height: 52px;
   min-height: 52px;
+  margin-block: 0;
 }
 
-body[data-dsh-wuhu-traffic-agent][data-wuhu-sidebar-wide] [data-wuhu-brand-button] > * {
+/* macOS puts controls in topStrip; this row contains only its static brand. */
+body[data-dsh-wuhu-traffic-agent][data-wuhu-sidebar-wide] [data-wuhu-brand-static-row] {
+  display: none;
+}
+
+body[data-dsh-wuhu-traffic-agent][data-wuhu-sidebar-wide] [data-wuhu-brand-content] > * {
   visibility: hidden !important;
   opacity: 0 !important;
-}
-
-body[data-dsh-wuhu-traffic-agent][data-wuhu-sidebar-wide] [data-wuhu-brand-button] > svg,
-body[data-dsh-wuhu-traffic-agent][data-wuhu-sidebar-wide]
-  [data-wuhu-brand-button]
-  [data-slot='sidebar.brand.mark'] svg {
-  opacity: 0;
-}
-
-body[data-dsh-wuhu-traffic-agent][data-wuhu-sidebar-wide]
-  [data-wuhu-brand-button]
-  [data-slot='sidebar.brand.name'] {
-  visibility: hidden !important;
-  opacity: 0 !important;
-}
-
-body[data-dsh-wuhu-traffic-agent][data-wuhu-sidebar-wide]
-  [data-slot='sidebar']
-  > :first-child
-  > button:not([data-dsh-part='sidebar-entry']) {
-  z-index: 3;
-  overflow: visible;
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-  color: transparent;
-}
-
-body[data-dsh-wuhu-traffic-agent][data-wuhu-sidebar-wide]
-  [data-slot='sidebar']
-  > :first-child
-  > button:not([data-dsh-part='sidebar-entry'])
-  > * {
-  opacity: 0;
-  pointer-events: none;
-}
-
-body[data-dsh-wuhu-traffic-agent][data-wuhu-sidebar-wide]
-  [data-slot='sidebar']
-  > :first-child
-  > button:not([data-dsh-part='sidebar-entry'])::before {
-  position: absolute;
-  top: -12px;
-  right: -12px;
-  left: -12px;
-  height: calc(var(--wuhu-stage, 276px) - 58px);
-  content: '';
-  cursor: pointer;
-  opacity: 0;
-}
-
-body[data-dsh-wuhu-traffic-agent][data-wuhu-sidebar-wide]
-  [data-slot='sidebar']
-  > :first-child
-  > button[data-dsh-part='sidebar-entry'] {
-  z-index: 4;
-  margin-top: calc(var(--wuhu-stage, 276px) - 116px);
-  border-left: 2px solid transparent;
-}
-
-body[data-dsh-wuhu-traffic-agent][data-wuhu-sidebar-wide]
-  [data-slot='sidebar']
-  > :first-child
-  > button[data-dsh-part='sidebar-entry']
-  ~ button[data-dsh-part='sidebar-entry'] {
-  margin-top: 0;
-}
-
-body[data-dsh-wuhu-traffic-agent][data-wuhu-sidebar-wide]
-  [data-slot='sidebar']
-  > :first-child:has(> button[data-dsh-part='sidebar-entry'])
-  [class*='regionArea'] {
-  margin-top: 0;
 }
 
 body[data-dsh-wuhu-traffic-agent][data-wuhu-sidebar-wide]
   [data-slot='sidebar']
   [class*='regionArea'] {
   isolation: isolate;
-  margin-top: calc(var(--wuhu-stage, 276px) - 120px);
+  margin-top: 0;
   border-top: 1px solid rgba(92, 145, 207, 0.25);
-  background: rgba(4, 12, 22, 0.92);
+  background: #050d18;
   box-shadow: 0 -12px 36px rgba(0, 6, 15, 0.16);
 }
 
@@ -685,11 +615,11 @@ body[data-dsh-wuhu-traffic-agent] *::-webkit-scrollbar-thumb {
   }
 
   body[data-dsh-wuhu-traffic-agent] .identity {
-    top: 44px;
+    top: 2px;
   }
 
   body[data-dsh-wuhu-traffic-agent] .signal {
-    top: 166px;
+    top: 114px;
   }
 }
 
