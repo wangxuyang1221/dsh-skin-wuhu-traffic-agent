@@ -37,6 +37,18 @@ corepack pnpm run check
 
 `skin.build.json` 由 `scripts/write-skin-build.mjs` 生成，仓库路径固定为 `.`。不要手工修改 fingerprint。
 
+## 官方 Desktop 拖拽检查
+
+在官方 macOS Desktop 中启用本地皮肤，并以 `--remote-debugging-port=19340` 启动后执行：
+
+```sh
+corepack pnpm run test:desktop-drag
+```
+
+可用 `DSH_DESKTOP_DEBUG_PORT` 指定其他调试端口。此检查连接实际 `dsh-app://app/` 页面，验证装饰层不排除原生拖拽区域、标题区仍可拖拽、标题区按钮仍可点击。它不包含在无需启动 Desktop 的 `check` 中；jsdom 不支持该属性的计算样式。
+
+还须实际拖动窗口、双击顶部、操作绿色按钮和窗口边缘，确认原生窗口行为。CSS 检查通过不能代替这些操作。检查完成后退出调试实例，日常启动不开放调试端口。
+
 ## 本地安装
 
 DSH CLI 必须使用皮肤仓库的绝对路径：

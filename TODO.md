@@ -49,3 +49,37 @@
 - 已有定位证据见 `.diagnostics/desktop-compat/README.md` 和 `.diagnostics/desktop-compat/BACKGROUND-ROOT-CAUSE.md`，复用前核对目标版本。
 - 主区色差已确认由非官方兼容模式清除 body 背景造成；代码块的实例加载状态尚未确认，不能视为同一根因。
 - 不修改任何 Desktop 项目。用户已批准在相邻 `dsh-official-desktop/` 下载、运行官方 app 并安装本地皮肤，使用隔离数据目录。未覆盖原有 Desktop 或原有用户配置。工作目录外的写入或其他副作用操作，须先说明范围和风险并取得用户同意。
+
+---
+
+# 窗口拖拽与放大修复
+
+## Understanding
+
+用户已确认前三个视觉问题修复。本轮处理此前就存在的窗口交互问题，不将其归因于上次改动。已确认皮肤直接挂在 body 下的 ambient、spine 命中官方 macOS 的 no-drag 规则，其中 ambient 覆盖整个窗口。双击顶部放大可能受同一问题影响；绿色按钮和边缘缩放尚未验证，不能预先认定同一根因。
+
+## User Visible Changes
+
+- 启用皮肤后，官方顶部拖拽区仍能移动窗口，双击行为遵循宿主及 macOS 设置。
+- 保持已修复的品牌、侧栏布局和背景；皮肤装饰层不抢占按钮、输入框或原生窗口交互。
+
+## Todo
+
+- [x] 分别核验顶部双击、绿色窗口按钮和边缘缩放。官方 0.1.7-rc.2 中，修复前顶部拖动和双击均无效；边缘缩放和绿色按钮进入全屏正常。修复后顶部拖动、双击放大及再次双击还原均通过原生鼠标验证。
+- [x] 修改 `src/client/wuhu-traffic-agent.module.css`，仅在启用皮肤时对 ambient、spine 设置 `-webkit-app-region: initial !important`，使其不再排除官方拖拽区域。实机发现显式 none 计算为 no-drag，initial 才得到中性值 none，因此调整原方案。保留 `pointer-events: none`，未修改宿主 drag/no-drag 区域，未增加运行时 JS、监听器或轮询。真实窗口拖动恢复，原有页面交互检查通过。
+- [x] 使用现有构建脚本更新发布产物 `lib/index.js`、`lib/client.js` 和 `skin.build.json`。官方插件路径加载本次构建并通过 Electron 检查，元数据仓库路径保持 `.`；`lib/index.js` 重建后未变。
+- [x] 结束验收后停止主进程54112及其Host54116，确认19340、19387端口释放，保留诊断记录及验证结果。
+
+## How To Test
+
+- 先补失败测试：加入实际官方 macOS 的 `body > :not(#root)` 规则，验证当前装饰层为 no-drag。实现后要求两个装饰层计算值为 none，而官方标题区仍为 drag、按钮仍为 no-drag。浏览器不支持或测试环境不能正确计算 app-region 时，不用空字符串或源码匹配替代行为通过证据，改在真实 Electron 中验证。
+- 生命周期与范围：启用、停用、重新启用后装饰节点不重复、无残留覆盖；保持 `pointer-events: none`。补丁仅限皮肤装饰层，不改变宿主交互元素，非 macOS 宿主布局保持原样。
+- 原生交互：在已获准使用的隔离官方 Desktop 中，通过正常插件加载本次构建。实际拖动顶部并记录窗口位置变化；分别检查顶部双击、绿色按钮和边缘缩放的结果。DOM 样式正确或网页鼠标事件触发不能代替原生窗口验收；若缺少系统自动化权限，记录未验证项并由用户手工确认，不提前标记完成。
+- 回查新会话、插件入口、输入框、侧栏展开/收起、设置弹窗及既有三个视觉修复。覆盖浅色和深色宿主主题。
+- 最终运行 `corepack pnpm run check` 与 `git diff --check`。记录先失败后通过的用例、真实窗口验收结果及未验证项。
+
+## Notes
+
+- 本轮只修皮肤，不修改官方 Electron 配置或直接实现窗口控制逻辑。不得将装饰层设为 drag，否则可能让整个页面成为拖拽区。
+- 若绿色按钮或边缘缩放存在独立故障，先报告证据与修复范围，不直接修改官方应用。
+- 本轮已实施。新增 `corepack pnpm run test:desktop-drag`，在真实 Electron 中先失败后通过；常规门禁仍为 44 个测试。通过官方插件管理器停用后 skin chrome 数量为0，重新启用后检查通过。浅色/深色主题、侧栏展开/收起、设置、新会话、插件入口和输入框已复查。诊断记录见 `.diagnostics/desktop-compat/WINDOW-INTERACTIONS.md`。未自动提交或推送。

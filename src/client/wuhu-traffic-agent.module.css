@@ -129,6 +129,12 @@ body[data-dsh-wuhu-traffic-agent][data-wuhu-settings-open] [id='root'] {
   z-index: var(--wuhu-settings-overlay-z) !important;
 }
 
+/* Desktop marks body-level portals no-drag. Reset decorative overlays to the
+   neutral initial value: explicit `none` maps to no-drag in Electron 44. */
+body[data-dsh-wuhu-traffic-agent] > :is(.ambient, .spine) {
+  -webkit-app-region: initial !important;
+}
+
 body[data-dsh-wuhu-traffic-agent] .ambient {
   position: fixed;
   z-index: 0;
